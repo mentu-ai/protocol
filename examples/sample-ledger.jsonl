@@ -1,0 +1,6 @@
+{"id":"mem_a1b2c3d4","op":"capture","ts":"2025-01-15T10:30:00Z","actor":"human:rashid","body":"Customer reported checkout fails on empty cart","kind":"observation"}
+{"id":"cmt_e5f6g7h8","op":"commit","ts":"2025-01-15T10:31:00Z","actor":"human:rashid","body":"Fix empty cart checkout bug","source":"mem_a1b2c3d4","tags":["bug","checkout"]}
+{"id":"op_i9j0k1l2","op":"claim","ts":"2025-01-15T10:32:00Z","actor":"agent:claude","commitment":"cmt_e5f6g7h8"}
+{"id":"mem_m3n4o5p6","op":"capture","ts":"2025-01-15T11:00:00Z","actor":"agent:claude","body":"Fixed null check in cart.ts:42, added test in cart.test.ts","kind":"evidence"}
+{"id":"op_q7r8s9t0","op":"submit","ts":"2025-01-15T11:01:00Z","actor":"agent:claude","commitment":"cmt_e5f6g7h8","evidence":"mem_m3n4o5p6","summary":"Fixed empty cart checkout bug"}
+{"id":"op_u1v2w3x4","op":"approve","ts":"2025-01-15T11:30:00Z","actor":"human:rashid","commitment":"cmt_e5f6g7h8","comment":"Verified fix works"}
