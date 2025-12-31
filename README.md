@@ -2,11 +2,11 @@
 
 **The Commitment Protocol**
 
-A substrate for accountable action. Observations become commitments. Commitments require evidence. Evidence enables closure. Everything is recorded.
+A substrate for accountable action. Observations become commitments. Commitments require evidence. Evidence enables closure. Everything is recorded. Think of it as a work ledger.
 
 ---
 
-## The Parallel
+## The Open Protocol
 
 The protocol is open. The format is open. Run it yourself.
 
