@@ -8,10 +8,6 @@ A substrate for accountable action. Observations become commitments. Commitments
 
 ## The Parallel
 
-Git is free. GitHub makes billions.
-
-**Mentu is free. [mentu.ai](https://mentu.ai) is the business.**
-
 The protocol is open. The format is open. Run it yourself.
 
 ---
