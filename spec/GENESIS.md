@@ -1,7 +1,7 @@
 # Genesis Key
 
 **Version**: 1.0
-**Status**: Draft
+**Status**: Stable
 
 ---
 
@@ -29,7 +29,7 @@ The Genesis Key is an optional workspace constitution. It defines who owns the w
 identity:
   name: "Acme Corp Engineering"
   owner: "human:rashid"
-  created: "2025-01-15"
+  created: "2026-04-02"
 
 # Actors
 actors:
@@ -67,9 +67,22 @@ permissions:
 # Constraints
 constraints:
   claim:
-    require_claim: true  # Must claim before closing
+    require_claim: true
   close:
-    require_evidence: true  # Must have evidence
+    require_evidence: true
+
+# Trust weights (override defaults)
+trust:
+  weights:
+    exit_code: 0.20
+    test_pass_rate: 0.20
+    context_utilization: 0.20
+    loop_complete: 0.15
+    duration_reasonable: 0.10
+    no_errors: 0.10
+    evidence_depth: 0.05
+  decay:
+    default_half_life_days: 90
 
 # Validation tiers
 validation:
@@ -114,7 +127,7 @@ Who owns this workspace.
 identity:
   name: "Project Name"
   owner: "human:rashid"
-  created: "2025-01-15"
+  created: "2026-04-02"
   description: "A brief description"
 ```
 
@@ -136,7 +149,7 @@ actors:
 
 ### permissions
 
-What each role can do.
+What each role can do. Operations reference the nine v2.0 operations.
 
 ```yaml
 permissions:
@@ -149,6 +162,7 @@ permissions:
     - release
     - close
     - annotate
+    - submit
   agent:
     - capture
     - claim
@@ -166,23 +180,39 @@ Rules that must be satisfied.
 
 ```yaml
 constraints:
-  # Require claim before any close
   claim:
     require_claim: true
 
-  # Evidence is mandatory
   close:
     require_evidence: true
 
-  # Tags required for commits
   commit:
     require_tags: true
 
-  # Specific tag constraints
   security:
     require_approval: true
     approvers: [human:*]
 ```
+
+### trust
+
+Override default trust computation weights. Weights MUST sum to 1.0.
+
+```yaml
+trust:
+  weights:
+    exit_code: 0.25
+    test_pass_rate: 0.25
+    context_utilization: 0.15
+    loop_complete: 0.10
+    duration_reasonable: 0.10
+    no_errors: 0.10
+    evidence_depth: 0.05
+  decay:
+    default_half_life_days: 90
+```
+
+See [TRUST.md](./TRUST.md) for the full trust computation model.
 
 ### validation
 
@@ -308,6 +338,18 @@ constraints:
     require_evidence: true
   claim:
     require_claim: true
+
+trust:
+  weights:
+    exit_code: 0.15
+    test_pass_rate: 0.30
+    context_utilization: 0.15
+    loop_complete: 0.10
+    duration_reasonable: 0.10
+    no_errors: 0.10
+    evidence_depth: 0.10
+  decay:
+    default_half_life_days: 60
 
 validation:
   tiers:
