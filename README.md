@@ -2,7 +2,7 @@
 
 **The Commitment Protocol**
 
-A substrate for accountable action. Observations become commitments. Commitments require evidence. Evidence enables closure. Everything is recorded. Think of it as a work ledger.
+A substrate for accountable action. Observations become commitments. Commitments require evidence. Evidence is hash-chained and trust-scored. Everything is recorded. Nothing is edited.
 
 ---
 
@@ -10,46 +10,98 @@ A substrate for accountable action. Observations become commitments. Commitments
 
 The protocol is open. The format is open. Run it yourself.
 
----
-
-## Why Open Source
-
-We're building a substrate for accountable action.
-
-If the substrate itself isn't open — inspectable, auditable, forkable — we've failed before we started.
-
-**The medium must embody the message.**
-
-A substrate must be:
-- **Trustable** — You can't build accountability infrastructure that isn't itself accountable
-- **Ubiquitous** — Git won because anyone could use it, anywhere, for anything, no permission needed
-- **Scientific** — Researchers need access to inspect, extend, validate. Closed substrates don't become foundations.
+If the substrate isn't open — inspectable, auditable, forkable — we've failed before we started.
 
 ---
 
 ## What Mentu Is
 
-A commitment ledger. Append-only. Three rules:
+A commitment ledger. Append-only. Hash-chained. Three rules:
 
 1. **Commitments trace to observations** — Every obligation has an origin
 2. **Closure requires evidence** — Proving done, not marking done
-3. **Append-only** — Nothing edited, nothing deleted
+3. **Append-only, hash-chained** — Nothing edited, nothing deleted. Every entry carries the hash of the one before it.
 
 The ledger is the truth. State is computed by replay.
 
 ---
 
-## The Innovation
+## One Signal Type
 
-**Commitment as a first-class primitive that crosses system boundaries.**
+**EpistemicSignal** — the universal entry. Everything in the ledger is a signal.
 
-That's the conceptual innovation. The technology to implement it is boring:
+A capture with `kind: "observation"` is a memory. A commit with `kind: "commitment"` is a commitment. Evidence, findings, approvals — all signals. One type. One schema. One chain.
 
-- Postgres (constraints, indexes, locking)
-- HTTP API (point queries)
-- Simple schema (one object, clear guarantees)
+```json
+{
+  "id": "mem_a1b2c3d4",
+  "op": "capture",
+  "ts": "2026-04-02T10:30:00Z",
+  "actor": "human:rashid",
+  "workspace": "my-project",
+  "hash": "bed4c1c8...",
+  "prevHash": "00000000...",
+  "payload": { "body": "Customer reported checkout bug", "kind": "observation" },
+  "trust": { "confidence": 0.85, "verification": "machine_verified" }
+}
+```
 
-The product is the abstraction, not the infrastructure.
+---
+
+## The Nine Operations
+
+### Core
+| Operation | Effect |
+|-----------|--------|
+| `capture` | Record an observation → Signal |
+| `commit` | Create an obligation → Signal |
+| `claim` | Take responsibility |
+| `release` | Give up responsibility |
+| `close` | Resolve with evidence |
+| `annotate` | Attach a note |
+
+### Review
+| Operation | Effect |
+|-----------|--------|
+| `submit` | Request closure, enter `in_review` |
+| `approve` | Accept submission → `closed` |
+| `reopen` | Reject, return to `claimed` |
+
+---
+
+## Trust
+
+Trust is computed, never self-reported. Seven mechanical observations — exit code, test pass rate, context utilization, completion signal, duration, error state, evidence depth — weighted into a confidence score.
+
+Three confidence values:
+- **Asserted** — frozen at creation
+- **Effective** — evolves as the graph grows (citations increase it, contradictions decrease it)
+- **Current** — effective × temporal decay (evidence fades over time)
+
+See [Trust Computation](./spec/TRUST.md).
+
+---
+
+## The Execution Algebra
+
+Ten composable primitives for orchestrating agent work:
+
+| Primitive | Purpose |
+|-----------|---------|
+| Step | One agent, one intent |
+| Formula | Ordered step sequence |
+| Pipeline | Sequential formula chain |
+| Parallel | Concurrent in isolation |
+| Compound | Dependency graph |
+| Adversarial | Red/Blue self-correction |
+| Convergent | N strategies, best wins |
+| Temporal | Scheduled execution |
+| Sentinel | Continuous monitoring |
+| Substrate | Infrastructure tuning |
+
+They form a closed algebra — any primitive can embed any other. A step runs identically alone or inside a 200-step compound.
+
+See [Execution Algebra](./spec/EXECUTION.md).
 
 ---
 
@@ -57,7 +109,7 @@ The product is the abstraction, not the infrastructure.
 
 ```
 .mentu/
-├── ledger.jsonl      # The append-only log
+├── ledger.jsonl      # The append-only, hash-chained log
 ├── config.yaml       # Workspace configuration
 ├── AGENTS.md         # Instructions for AI agents
 └── genesis.key       # Constitutional identity (optional)
@@ -67,71 +119,22 @@ Four files. The ledger is the truth. The config is how it connects. The AGENTS.m
 
 ---
 
-## The Twelve Operations
-
-### Core (v0.1)
-| Operation | Effect |
-|-----------|--------|
-| `capture` | Record an observation → Memory |
-| `commit` | Create an obligation → Commitment |
-| `claim` | Take responsibility |
-| `release` | Give up responsibility |
-| `close` | Resolve with evidence |
-| `annotate` | Attach a note |
-
-### Review (v1.0)
-| Operation | Effect |
-|-----------|--------|
-| `submit` | Request closure, enter `in_review` |
-| `approve` | Accept submission → `closed` |
-| `reopen` | Reject, return to `claimed` |
-
-### Triage (v0.8)
-| Operation | Effect |
-|-----------|--------|
-| `link` | Connect memory/commitment to commitment |
-| `dismiss` | Mark memory as not actionable |
-| `triage` | Record a triage session |
-
----
-
 ## The Agent Protocol
 
 How do agents know what to do?
 
 **They read `.mentu/AGENTS.md`.**
 
-Every AI agent — Claude, GPT, Cursor, Devin, any future agent — starts by reading that file. It tells them:
-
-1. What Mentu is
-2. How to check for work
-3. How to claim work
-4. How to produce evidence
-5. How to close work
-6. What they cannot do
+Every AI agent — Claude, GPT, Cursor, Devin, any future agent — starts by reading that file. It tells them: check for work, claim before starting, capture evidence, submit for review.
 
 The agent doesn't need special integration. It needs to read a file and run commands.
 
-### Agent Workflow
-
 ```bash
-# 1. Read instructions
-cat .mentu/AGENTS.md
-
-# 2. Check for work
-mentu status
-
-# 3. Claim before starting
-mentu claim <commitment>
-
-# 4. Do the work
-# ...
-
-# 5. Capture evidence
-mentu capture "What I did" --kind evidence
-
-# 6. Close with proof
-mentu close <commitment> --evidence <memory>
+mentu status                          # Check for work
+mentu claim cmt_def456                # Take responsibility
+# ... do the work ...
+mentu capture "Fixed bug" --kind evidence   # Record evidence
+mentu submit cmt_def456 --evidence mem_ghi789  # Submit for review
 ```
 
 This works for any agent. No SDK required. Just a terminal.
@@ -148,54 +151,16 @@ No component stores its own state. State is always computed by replaying the led
 
 ---
 
-## Quickstart
-
-```bash
-# Install the CLI
-npm install -g mentu
-
-# Initialize a workspace
-mentu init
-
-# Observe something
-mentu capture "Customer reported bug in checkout"
-
-# Create a commitment
-mentu commit "Fix checkout bug" --source mem_abc123
-
-# Take responsibility
-mentu claim cmt_def456
-
-# Do the work...
-
-# Capture evidence
-mentu capture "Fixed null check in payment.ts:42" --kind evidence
-
-# Close with proof
-mentu close cmt_def456 --evidence mem_ghi789
-```
-
----
-
-## Ecosystem
-
-| Component | Purpose | Repo |
-|-----------|---------|------|
-| **Protocol** | The specification | [mentu-ai/mentu](https://github.com/mentu-ai/mentu) |
-| **CLI** | Node.js implementation | [mentu-ai/mentu-cli](https://github.com/mentu-ai/mentu-cli) |
-| **Plugin** | Claude Code integration | [mentu-ai/mentu-plugin](https://github.com/mentu-ai/mentu-plugin) |
-| **Proxy** | Sync service | [mentu-ai/mentu-proxy](https://github.com/mentu-ai/mentu-proxy) |
-| **Service** | mentu.ai platform | Private |
-
----
-
 ## Documentation
 
-- [Protocol Specification](./spec/PROTOCOL.md) — The twelve operations, state machines, invariants
-- [Ledger Format](./spec/LEDGER.md) — JSONL structure, operation envelope
-- [Genesis Key](./spec/GENESIS.md) — Workspace constitution, permissions, constraints
+- [Protocol Specification](./spec/PROTOCOL.md) — The nine operations, state machine, Merkle chain, invariants
+- [Ledger Format](./spec/LEDGER.md) — Signal schema, hash computation, JSON Lines format
+- [Trust Computation](./spec/TRUST.md) — Seven-weight model, three confidence values, temporal decay
+- [Execution Algebra](./spec/EXECUTION.md) — Ten composable primitives, composition algebra
+- [Invariants](./spec/INVARIANTS.md) — Five structural guarantees
+- [Genesis Key](./spec/GENESIS.md) — Workspace constitution, permissions, trust weights
 - [Agent Instructions](./agents/AGENTS.md) — Template for teaching agents
-- [Examples](./examples/) — Sample ledgers and workflows
+- [Examples](./examples/) — Sample ledger with real hashes, end-to-end workflow
 
 ---
 
@@ -217,4 +182,4 @@ MIT — Free as in freedom.
 
 ---
 
-*A ledger where commitments require evidence.*
+*A Merkle-chained ledger where commitments require evidence.*
