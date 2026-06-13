@@ -198,6 +198,7 @@ The ledger is the source of truth. State is always computed by replaying it. Not
 | [EXECUTION.md](./spec/EXECUTION.md) | Ten primitives, composition algebra, embedding principle |
 | [INVARIANTS.md](./spec/INVARIANTS.md) | Five structural guarantees |
 | [GENESIS.md](./spec/GENESIS.md) | Workspace constitution, permissions, trust weights |
+| [OKF.md](./spec/OKF.md) | The Open Knowledge Format and the x-mentu profile: portable knowledge bundles on the protocol's signal graph |
 
 ---
 

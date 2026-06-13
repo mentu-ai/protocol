@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1 — 2026-06-13
+
+### Added
+- **OKF profile** ([spec/OKF.md](spec/OKF.md)): the Open Knowledge Format (Andrej Karpathy's *LLM Wiki* and Google Cloud's *Open Knowledge Format*) with the `x-mentu` profile, which maps portable knowledge bundles onto the protocol's signal graph. Identity (`ns:type.slug`), trust (`level`/`decay`), five typed relations (`extends`, `supersedes`, `reinforces`, `constrains`, `balances_with`) mapping to protocol edges, and machine-readable twins.
+- **Projection**: non-mutating, lossless import of a corpus that already uses its own frontmatter schema, deriving a parallel OKF bundle without rewriting the source.
+
 ## v2.0 — 2026-04-02
 
 ### Added
